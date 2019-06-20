@@ -65,11 +65,13 @@ class _HomePageState extends State<HomePage> {
                         strokeWidth: 5,
                       ),
                     );
+                  case ConnectionState.active:
                   default:
-                    if (snapshot.hasError)
-                      return Container();
-                    else
-                      return _createGifsTable(context, snapshot);
+                    return snapshot.hasError
+                        ? Container(
+                            color: Colors.red,
+                          )
+                        : _createGifsTable(context, snapshot);
                 }
               },
             ),
@@ -80,8 +82,23 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _createGifsTable(BuildContext context, AsyncSnapshot snapshot) {
-    return Container(
-      color: Colors.green,
+    return GridView.builder(
+      padding: EdgeInsets.all(10),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+      ),
+      itemCount: 20,
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          child: Image.network(
+            snapshot.data["data"][index]["images"]["fixed_height"]["url"],
+            height: 300,
+            fit: BoxFit.cover,
+          ),
+        );
+      },
     );
   }
 }
