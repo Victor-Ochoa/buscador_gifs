@@ -19,7 +19,7 @@ class _HomePageState extends State<HomePage> {
           "https://api.giphy.com/v1/gifs/trending?api_key=RqYAY2JMuii9ZAhPIgynweYX9gRc3X2r&limit=20&rating=G");
     else
       response = await http.get(
-          "https://api.giphy.com/v1/gifs/search?api_key=RqYAY2JMuii9ZAhPIgynweYX9gRc3X2r&q=$_search&limit=20&offset=$_offset&rating=G&lang=en");
+          "https://api.giphy.com/v1/gifs/search?api_key=RqYAY2JMuii9ZAhPIgynweYX9gRc3X2r&q=$_search&limit=19&offset=$_offset&rating=G&lang=en");
 
     return json.decode(response.body);
   }
@@ -47,9 +47,10 @@ class _HomePageState extends State<HomePage> {
                   border: OutlineInputBorder()),
               style: TextStyle(color: Colors.white, fontSize: 18),
               textAlign: TextAlign.center,
-              onSubmitted: (text){
+              onSubmitted: (text) {
                 setState(() {
-                 _search = text; 
+                  _search = text;
+                  _offset = 0;
                 });
               },
             ),
@@ -86,6 +87,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  int _getCount(List data) {
+    if (_search == null || _search.isEmpty)
+      return data.length;
+    else
+      return data.length + 1;
+  }
+
   Widget _createGifsTable(BuildContext context, AsyncSnapshot snapshot) {
     return GridView.builder(
       padding: EdgeInsets.all(10),
@@ -94,15 +102,34 @@ class _HomePageState extends State<HomePage> {
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
       ),
-      itemCount: 20,
+      itemCount: _getCount(snapshot.data["data"]),
       itemBuilder: (context, index) {
-        return GestureDetector(
-          child: Image.network(
-            snapshot.data["data"][index]["images"]["fixed_height"]["url"],
-            height: 300,
-            fit: BoxFit.cover,
-          ),
-        );
+        if ((_search == null || _search.isEmpty) ||
+            index < snapshot.data["data"].length) {
+          return GestureDetector(
+            child: Image.network(
+              snapshot.data["data"][index]["images"]["fixed_height"]["url"],
+              height: 300,
+              fit: BoxFit.cover,
+            ),
+          );
+        } else {
+          return GestureDetector(
+            onTap: (){
+              setState(() {
+               _offset += 19; 
+              });
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Icon(Icons.add, color:  Colors.white, size: 70,),
+                Text("Carregar mais...", style: TextStyle(color: Colors.white, fontSize: 22 ),)
+              ],
+            ),
+          );
+        }
       },
     );
   }
