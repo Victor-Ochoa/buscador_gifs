@@ -1,7 +1,10 @@
+import 'package:buscador_gifs/ui/gif_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:share/share.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -107,6 +110,18 @@ class _HomePageState extends State<HomePage> {
         if ((_search == null || _search.isEmpty) ||
             index < snapshot.data["data"].length) {
           return GestureDetector(
+            onLongPress: (){
+              Share.share(snapshot.data["data"][index]["images"]["fixed_height"]["url"]);
+            },
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          GifPage(snapshot.data["data"][index])
+                      )
+                  );
+            },
             child: Image.network(
               snapshot.data["data"][index]["images"]["fixed_height"]["url"],
               height: 300,
@@ -115,17 +130,24 @@ class _HomePageState extends State<HomePage> {
           );
         } else {
           return GestureDetector(
-            onTap: (){
+            onTap: () {
               setState(() {
-               _offset += 19; 
+                _offset += 19;
               });
             },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                Icon(Icons.add, color:  Colors.white, size: 70,),
-                Text("Carregar mais...", style: TextStyle(color: Colors.white, fontSize: 22 ),)
+                Icon(
+                  Icons.add,
+                  color: Colors.white,
+                  size: 70,
+                ),
+                Text(
+                  "Carregar mais...",
+                  style: TextStyle(color: Colors.white, fontSize: 22),
+                )
               ],
             ),
           );
